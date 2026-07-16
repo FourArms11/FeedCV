@@ -18,7 +18,7 @@ async function verifyUser(req,res,next){
     if(isBlacklist){
         res.clearCookie('token');
         return res.status(401).json({
-            message: "This token is invalid.Please login again"
+            message: "invalid Token.Please login again"
         })
     }
 
