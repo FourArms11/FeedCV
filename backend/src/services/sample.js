@@ -54,125 +54,71 @@ Lately, I've been taking online courses on backend architecture, building basic 
 
 module.exports = { sampleJobDescription, sampleResume, sampleSelfDescription };
 
+
+
+
+
 // {
-//   "title": "Interview Report: Alex Rivera for Senior Full-Stack Engineer (AI Integrations)",
-//   "score": 48,
-//   "technicalQuestions": [
-//     {
-//       "question": "Given your deep React background, how does Next.js App Router change the way we think about state management and data fetching compared to a traditional client-side React SPA using Redux?",
-//       "intention": "To evaluate the candidate's transition from client-side React to modern Next.js server-side paradigms (SSR, Server Components) and see if they understand when to use client vs. server state.",
-//       "answer": "The candidate should explain that in Next.js App Router, data fetching is ideally done on the server using Server Components, reducing the need for global client-side state managers like Redux for fetched data. They should discuss how Server Components fetch data directly from databases or APIs, and how client-side state (like Redux or React Context) should be reserved for interactive UI state. They should also mention the benefits of reduced bundle sizes and improved initial page loads."
-//     },
-//     {
-//       "question": "Can you walk me through how you would design a Node.js microservice that queries a PostgreSQL database, uses Redis for caching, and handles high-throughput read requests?",
-//       "intention": "To test the candidate's theoretical backend and database design capabilities, specifically addressing their lack of production backend experience.",
-//       "answer": "The candidate should describe setting up an Express or Fastify server in Node.js. For database access, they should mention using an ORM or query builder (like Prisma or Knex) to query PostgreSQL. For caching, they should explain the Cache-Aside pattern: checking Redis first for the key, returning it if found (cache hit), otherwise querying PostgreSQL, saving the result to Redis with a Time-To-Live (TTL), and returning it (cache miss). They should also touch on handling connection pooling for PostgreSQL."
-//     },
-//     {
-//       "question": "Explain the architecture of a Retrieval-Augmented Generation (RAG) pipeline. How do LangChain, an LLM, and a Vector Database like Pinecone or pgvector work together to answer user queries?",
-//       "intention": "To assess the candidate's understanding of AI integration concepts, LangChain, and vector databases, which are core requirements for this role.",
-//       "answer": "The candidate should explain that a RAG pipeline enhances LLM prompts with external data. First, documents are chunked and converted into vector embeddings using an embedding model. These embeddings are stored in a Vector Database (like Pinecone or pgvector). When a user asks a question, the question is also embedded, and a similarity search is run against the vector database to retrieve the most relevant document chunks. LangChain is used to orchestrate this workflow: it takes the user query, retrieves the context, formats a prompt template containing both context and query, and sends it to the LLM to generate a grounded response."
+//     "message": "report generated successfully",
+//     "interviewReport": {
+//         "jobDescription": "**Job Title:** Full-Stack Software Engineer Intern\n\nWe are looking for a motivated and enthusiastic Full-Stack Software Engineer Intern to join our engineering team. The ideal candidate should have a solid understanding of web development fundamentals, strong problem-solving skills, and a passion for building scalable applications.\n\n**Responsibilities:**\n\n* Develop and maintain web applications using React.js, Node.js, and Express.js.\n* Design and implement RESTful APIs and integrate them with frontend applications.\n* Work with MongoDB or SQL databases to store and manage application data.\n* Collaborate with cross-functional teams to design, develop, test, and deploy new features.\n* Debug, troubleshoot, and optimize existing applications for performance and scalability.\n* Write clean, maintainable, and well-documented code following industry best practices.\n* Participate in code reviews and contribute to technical discussions.\n\n**Required Qualifications:**\n\n* Pursuing a Bachelor's degree in Computer Science or a related field.\n* Strong knowledge of JavaScript, HTML, and CSS.\n* Experience with React.js, Node.js, and Express.js.\n* Familiarity with MongoDB or MySQL.\n* Understanding of REST APIs, Git, and version control workflows.\n* Good understanding of Data Structures and Algorithms.\n* Strong communication, analytical, and problem-solving skills.\n\n**Preferred Qualifications:**\n\n* Experience building full-stack projects using the MERN stack.\n* Familiarity with authentication using JWT or OAuth.\n* Exposure to cloud deployment platforms such as Vercel, Render, or AWS.\n* Experience integrating third-party APIs, including AI services.\n* Knowledge of Docker, CI/CD pipelines, or automated testing frameworks is a plus.\n\n**Nice to Have:**\n\n* Personal or open-source projects demonstrating full-stack development.\n* Participation in coding contests, hackathons, or technical communities.\n* A passion for continuous learning and staying up to date with modern web technologies.\n",
+//         "resume": "John Doe\nEmail: john.doe@example.com | Phone: +1 555-123-4567 | LinkedIn: linkedin.com/in/johndoe\nProfessional Summary\nMotivated software developer with experience in full-stack web development, data structures, and\ncloud deployment. Passionate about building scalable applications and solving complex problems.\nEducation\nB.Tech in Computer Science, XYZ University (2022–2026)\nCGPA: 8.7/10\nTechnical Skills\nLanguages: C++, JavaScript, Python\nFrontend: React, HTML, CSS, Tailwind CSS\nBackend: Node.js, Express.js\nDatabase: MongoDB, MySQL\nTools: Git, GitHub, Docker, Postman\nProjects\nAI Resume Analyzer\nBuilt a MERN application that analyzes resumes, compares them against job descriptions, identifies\nskill gaps using Gemini API, and generates ATS-friendly resumes.\nExpense Tracker\nCreated a full-stack expense tracking application with JWT authentication and MongoDB.\nExperience\nSoftware Development Intern (May 2025 – Jul 2025)\nDeveloped REST APIs, improved database queries, and collaborated using Git.\nAchievements\n• Solved 500+ DSA problems.\n• Finalist in university hackathon.\nCertifications\n• Full-Stack Web Development\n• Data Structures & Algorithms\n\n-- 1 of 1 --\n\n",
+//         "selfDescription": "I am a passionate and motivated Computer Science student with a strong interest in full-stack web development and software engineering. I enjoy building scalable web applications and solving challenging programming problems. Over the past few years, I have gained hands-on experience with the MERN stack, REST APIs, MongoDB, SQL databases, and modern frontend technologies like React.\n\nI have worked on projects such as an AI-powered Resume Analyzer that uses the Gemini API to analyze resumes, identify skill gaps, and generate ATS-friendly resumes, as well as a full-stack Expense Tracker with secure JWT-based authentication. These projects have strengthened my understanding of backend development, database design, and API integration.\n\nI am proficient in C++, JavaScript, and Python, and have solved over 500 data structures and algorithms problems, which has helped me develop strong problem-solving and analytical skills. I enjoy learning new technologies, collaborating with teams, and continuously improving my coding practices.\n\nI am seeking opportunities where I can contribute to meaningful software projects, learn from experienced engineers, and grow as a full-stack developer. I am a quick learner, adaptable, and committed to delivering high-quality, maintainable solutions.\n",
+//         "Score": 0,
+//         "technicalQuestions": [
+//             {
+//                 "question": "In your AI Resume Analyzer project, how did you handle the asynchronous nature of the Gemini API calls while maintaining a responsive UI?",
+//                 "intention": "Assess understanding of Node.js event loop, Promises/Async-Await, and frontend state management during long-running requests.",
+//                 "answer": "I used async/await in the Express backend to handle API calls, implemented loading states in React to provide user feedback, and utilized error handling to manage potential API timeouts or rate limits."
+//             },
+//             {
+//                 "question": "Explain how you would optimize a MongoDB query for a collection that has grown to millions of documents.",
+//                 "intention": "Evaluate database performance knowledge beyond basic CRUD operations.",
+//                 "answer": "I would analyze the query execution plan using .explain(), ensure proper indexing on frequently queried fields, use projection to return only necessary fields, and consider aggregation pipeline optimization."
+//             }
+//         ],
+//         "behavioralQuestions": [
+//             {
+//                 "question": "Tell me about a time you had to debug a complex issue in a team environment. How did you communicate your findings?",
+//                 "intention": "Gauge collaboration skills and ability to articulate technical problems to cross-functional team members.",
+//                 "answer": "I would describe a specific instance, focusing on the steps taken to isolate the bug, the tools used for debugging, and how I documented the fix in the team's shared repository or ticket system."
+//             }
+//         ],
+//         "skillsGaps": [
+//             {
+//                 "skill": "CI/CD Pipelines",
+//                 "importance": "medium"
+//             },
+//             {
+//                 "skill": "Automated Testing (Jest/Cypress)",
+//                 "importance": "high"
+//             }
+//         ],
+//         "preparationPlan": [
+//             {
+//                 "day": 1,
+//                 "focus": "Testing Frameworks",
+//                 "task": [],
+//                 "_id": "6a5a492d74338954f677f237"
+//             },
+//             {
+//                 "day": 2,
+//                 "focus": "CI/CD and Deployment",
+//                 "task": [],
+//                 "_id": "6a5a492d74338954f677f238"
+//             },
+//             {
+//                 "day": 3,
+//                 "focus": "System Design & Scalability",
+//                 "task": [],
+//                 "_id": "6a5a492d74338954f677f239"
+//             }
+//         ],
+//         "feedback": "The candidate is a strong fit for the intern role. They have relevant project experience with the MERN stack and have demonstrated technical depth through their DSA problem-solving. The primary area for improvement is moving from 'building' to 'maintaining and testing' code, as they lack formal experience with automated testing frameworks.",
+//         "suggestions": "Focus on articulating the 'why' behind your architectural choices in your projects. During the interview, emphasize your ability to write testable code and your familiarity with the full software development lifecycle, not just the coding phase.",
+//         "_id": "6a5a492d74338954f677f236",
+//         "createdAt": "2026-07-17T15:24:29.416Z",
+//         "updatedAt": "2026-07-17T15:24:29.416Z",
+//         "__v": 0
 //     }
-//   ],
-//   "behavioralQuestions": [
-//     {
-//       "question": "You are applying for a Senior Full-Stack role, but your production experience is heavily frontend-focused. How do you plan to establish technical authority and lead backend or infrastructure decisions with senior backend engineers on the team?",
-//       "intention": "To assess the candidate's self-awareness, leadership maturity, and strategy for overcoming their experience gap in a senior-level role.",
-//       "answer": "The candidate should demonstrate humility combined with proactive leadership. They should explain that they leverage their strong frontend architectural skills (system design, modularity, performance) and apply those principles to backend systems. They should emphasize collaborative decision-making, asking deep questions, relying on the team's domain experts while rapidly upskilling, and taking ownership of end-to-end feature delivery to build trust."
-//     },
-//     {
-//       "question": "Describe a time when you had to deliver a feature using a technology stack you had absolutely no prior experience with. How did you manage your time, and what was the outcome?",
-//       "intention": "To evaluate the candidate's ability to learn rapidly under pressure and deliver production-grade code in unfamiliar domains.",
-//       "answer": "The candidate should share a specific story (ideally from TechFront or WebStream) where they had to adopt a new tool or framework quickly. They should detail their learning methodology (e.g., building proof-of-concepts, reading documentation, seeking mentorship) and how they managed their delivery timeline without compromising code quality or testing standards."
-//     }
-//   ],
-//   "skillGaps": [
-//     {
-//       "skill": "Production Node.js & Python Backend Development",
-//       "severity": "high"
-//     },
-//     {
-//       "skill": "AWS Cloud Infrastructure (VPC, ECS, Lambda)",
-//       "severity": "high"
-//     },
-//     {
-//       "skill": "Infrastructure as Code (Terraform)",
-//       "severity": "high"
-//     },
-//     {
-//       "skill": "AI Integrations (LangChain, Vector Databases like Pinecone/pgvector)",
-//       "severity": "high"
-//     },
-//     {
-//       "skill": "Relational Databases & Caching (PostgreSQL, Redis)",
-//       "severity": "medium"
-//     },
-//     {
-//       "skill": "Next.js (App Router, Server Components, SSR)",
-//       "severity": "medium"
-//     }
-//   ],
-//   "preparationPlan": [
-//     {
-//       "day": 1,
-//       "focus": "Next.js App Router & SSR Transition",
-//       "tasks": [
-//         "Study Next.js official documentation focusing on App Router, Server Components vs. Client Components, and Server Actions.",
-//         "Migrate a basic React SPA component to a Next.js page utilizing Server-Side Rendering (SSR) and dynamic routing.",
-//         "Practice explaining the difference between hydration in React and server-side rendering in Next.js."
-//       ]
-//     },
-//     {
-//       "day": 2,
-//       "focus": "Backend Foundations (Node.js, Express, PostgreSQL)",
-//       "tasks": [
-//         "Build a robust REST API using Node.js, Express, and TypeScript.",
-//         "Set up a local PostgreSQL database using Docker.",
-//         "Write raw SQL queries and use an ORM (like Prisma) to perform CRUD operations, focusing on database indexing and schema design."
-//       ]
-//     },
-//     {
-//       "day": 3,
-//       "focus": "Caching & Performance (Redis)",
-//       "tasks": [
-//         "Integrate Redis into the Node.js/PostgreSQL API built on Day 2.",
-//         "Implement the Cache-Aside pattern for high-frequency read endpoints.",
-//         "Learn about Redis data types, key expiration (TTL) strategies, and cache invalidation techniques."
-//       ]
-//     },
-//     {
-//       "day": 4,
-//       "focus": "AI Engineering (LangChain & Vector Databases)",
-//       "tasks": [
-//         "Study the core concepts of Vector Embeddings and similarity search.",
-//         "Set up a free Pinecone vector database instance or run pgvector locally in Docker.",
-//         "Build a simple Python or Node.js script using LangChain to chunk a text document, generate embeddings, store them in the vector DB, and query them."
-//       ]
-//     },
-//     {
-//       "day": 5,
-//       "focus": "Cloud Infrastructure & IaC (AWS & Terraform)",
-//       "tasks": [
-//         "Learn the fundamentals of AWS VPC, ECS (Fargate), and AWS Lambda.",
-//         "Write a basic Terraform configuration file to provision an S3 bucket or a simple Lambda function.",
-//         "Understand the Terraform state file lifecycle, commands (init, plan, apply, destroy), and variables."
-//       ]
-//     },
-//     {
-//       "day": 6,
-//       "focus": "Full-Stack Integration Project",
-//       "tasks": [
-//         "Combine the Next.js frontend, Node.js/PostgreSQL backend, and LangChain pipeline into a single cohesive repository.",
-//         "Simulate a production deployment flow locally using Docker Compose to orchestrate all services (Frontend, Backend, Postgres, Redis)."
-//       ]
-//     },
-//     {
-//       "day": 7,
-//       "focus": "System Design & Mock Interviews",
-//       "tasks": [
-//         "Practice system design questions focusing on scaling full-stack applications and AI pipelines.",
-//         "Conduct a mock interview focusing on explaining frontend-to-backend architectural decisions and how to mitigate lack of production cloud experience with rapid learning frameworks."
-//       ]
-//     }
-//   ]
 // }

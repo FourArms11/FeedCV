@@ -140,7 +140,7 @@ ${selfDescription || "No additional context provided by the candidate."}
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-3.1-flash-lite",
       contents: prompt,
       config: {
         systemInstruction,

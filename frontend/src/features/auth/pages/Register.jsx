@@ -20,9 +20,13 @@ const Register = () => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    await handleRegister({username,email,password});
-    navigate('/login')
+    e.preventDefault();
+    await handleRegister({
+      username: formData.username,
+      email: formData.email,
+      password: formData.password,
+    });
+    navigate("/login");
   }
 
   return (

@@ -1,5 +1,6 @@
 const { PDFParse } = require('pdf-parse');
 const { generateReport } = require('../services/gemini.service');
+const { createPdfFromReport } = require('../services/pdfGenerator');
 const reportModel = require('../models/report.model');
 
 async function generateInterviewReport(req, res) {
@@ -13,7 +14,7 @@ async function generateInterviewReport(req, res) {
         jobDescription
     });
 
-    const interviewReport = await reportModel.create({
+    await reportModel.create({
         user: req.user._id,
         resume: pdf.text,
         selfDescription,
@@ -21,11 +22,16 @@ async function generateInterviewReport(req, res) {
         ...Report
     });
 
-
-    res.status(201).json({
-        message: 'report generated successfully',
-        interviewReport
+    const pdfBuffer = await createPdfFromReport({
+        report: Report,
+        user: req.user,
+        selfDescription,
+        jobDescription,
     });
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="FeedCV-interview-report.pdf"');
+    res.status(200).send(pdfBuffer);
 }
 
 
