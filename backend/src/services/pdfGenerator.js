@@ -6,7 +6,7 @@ function buildReportHtml(report, { user, selfDescription, jobDescription }) {
   <html>
     <head>
       <meta charset="utf-8" />
-      <title>Interview Report</title>
+      <title>${report.title || "Interview Report"}</title>
       <style>
         body { font-family: Arial, sans-serif; color: #111; background: #f7f7f7; margin: 0; padding: 30px; }
         .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 18px; box-shadow: 0 18px 40px rgba(0,0,0,0.08); }
@@ -28,7 +28,7 @@ function buildReportHtml(report, { user, selfDescription, jobDescription }) {
     </head>
     <body>
       <div class="container">
-        <h1>Interview Report</h1>
+        <h1>${report.title || "Interview Report"}</h1>
         <p class="small">Generated for ${user?.username || user?.email || "Candidate"}.</p>
 
         <div class="section card">

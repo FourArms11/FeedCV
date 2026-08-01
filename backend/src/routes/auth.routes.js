@@ -13,7 +13,7 @@ authRouter.get('/logout', authController.logoutUser);
 
 authRouter.get('/getDetails',authMiddleware.verifyUser, authController.getDetails);
 
-
+authRouter.post('/verify-otp', authController.verifyOTP);
 
 
 

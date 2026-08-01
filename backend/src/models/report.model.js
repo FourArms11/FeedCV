@@ -79,7 +79,7 @@ const preparationPlanSchema = new mongoose.Schema(
             type: String,
             required: [true, 'Focus is required'],
         },
-        task: [{
+        tasks: [{
             type: String,
             required: [true, 'Task is required'],
         }]
@@ -100,11 +100,15 @@ const reportSchema = new mongoose.Schema(
         selfDescription: {
             type: String
         },
-        Score: {
+        title: {
+            type: String,
+            required: [true, "Please enter report title"],
+        },
+        score: {
             type: Number,
             min: 0,
             max: 100,
-            default: 0
+            default: 0,
         },
         technicalQuestions: [ technicalQuestionSchema ],
         behavioralQuestions: [ behavioralQuestionSchema ],
@@ -117,14 +121,12 @@ const reportSchema = new mongoose.Schema(
         suggestions: {
             type: String,
         },
-    },{
-        timestamps: true
-    },
-    {
-        user:{
+        user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'users'
         }
+    },{
+        timestamps: true
     }
 );
 

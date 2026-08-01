@@ -1,13 +1,16 @@
 const userModel = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const blackListToken = require('../models/blacklist.model');
+const blackListToken = require("../models/blacklist.model");
+const { generateOTP, sendOTP } = require("../utils/otp.utils");
+const client = require("../config/redis.client");
 
 async function registerUser(req, res) {
   const { username, email, password } = req.body;
+
   if (!username || !email || !password) {
     return res.status(400).json({
-      message: "Please provide username, email and password ",
+      message: "Please provide all the fields",
     });
   }
 
@@ -29,32 +32,33 @@ async function registerUser(req, res) {
     }
   }
 
+  const existingOtp = await client.get(`otp:${email}`);
+  if (existingOtp) {
+    return res.status(429).json({
+      message: "OTP already sent. Please wait before requesting another one.",
+    });
+  }
+
+  const otp = generateOTP();
+
   const hash = await bcrypt.hash(password, 10);
 
-  const user = await userModel.create({
-    username,
-    email,
-    password: hash,
-  });
-
-  const token = jwt.sign(
-    {
-      id: user._id,
-    },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: "1d",
-    },
+  // Store the pending user registration in Redis for 2 days
+  await client.set(
+    `user:${email}`,
+    JSON.stringify({ username, email, password: hash }),
+    "EX",
+    60 * 60 * 24 * 2,
   );
 
-  res.cookie("token", token);
+  await client.set(`otp:${email}`, otp, "EX", 300); // Set OTP in Redis with a 5-minute expiration
+  await sendOTP(email, otp);
 
-  res.status(201).json({
-    message: "User registered Successfully",
+  return res.status(201).json({
+    message: "please verify your email address with the OTP sent to your email",
     user: {
-      id: user._id,
-      username: user.username,
-      email: user.email,
+      username,
+      email,
     },
   });
 }
@@ -88,7 +92,7 @@ async function loginUser(req, res) {
     },
   );
 
-  res.cookie("token", token);
+  res.cookie("token", token, getTokenCookieOptions());
 
   res.status(200).json({
     message: "User logged In successfully",
@@ -100,40 +104,85 @@ async function loginUser(req, res) {
   });
 }
 
-async function logoutUser(req,res){
-    const token = req.cookies.token;
+async function logoutUser(req, res) {
+  const token = req.cookies.token;
 
-    if(token){
-        await blackListToken.create({
-            token
-        })
-        res.clearCookie('token')
+  if (token) {
+    await blackListToken.create({
+      token,
+    });
+    res.clearCookie("token", getClearTokenCookieOptions());
 
-        res.status(200).json({
-            message: "User logged out successfully"
-        })
-    }
+    return res.status(200).json({
+      message: "User logged out successfully",
+    });
+  }
+
+  res.clearCookie("token", getClearTokenCookieOptions());
+  return res.status(200).json({
+    message: "User logged out successfully",
+  });
 }
 
-async function getDetails(req,res){
-
+async function getDetails(req, res) {
   const user = await userModel.findById(req.user.id);
-  
+
   res.status(200).json({
     message: "user details found and fetched successfully",
-    user:{
+    user: {
       id: user._id,
       username: user.username,
-      email: user.email
-    }
-  })
+      email: user.email,
+    },
+  });
+}
+
+async function verifyOTP(req, res) {
+  const { email, otp } = req.body;
+
+  const storedOtp = await client.get(`otp:${email}`);
+
+  if (!storedOtp) {
+    return res.status(400).json({
+      message: "OTP not found",
+    });
+  }
+
+  if (storedOtp !== otp) {
+    return res.status(400).json({
+      message: "OTP is incorrect",
+    });
+  }
+
+  const user = await client.get("user:" + email);
+
+  if (!user) {
+    return res.status(400).json({
+      message: "User not found",
+    });
+  }
+
+  const userDetails = JSON.parse(user);
+
+  const newUser = await userModel.create({
+    username: userDetails.username,
+    email: userDetails.email,
+    password: userDetails.password,
+    isVerified: true,
+  });
+
+  await client.del(`otp:${email}`);
+  await client.del(`user:${email}`);
+
+  return res.status(200).json({
+    message: "user registered successfully",
+  });
 }
 
 module.exports = {
   registerUser,
   loginUser,
   logoutUser,
-  getDetails
+  getDetails,
+  verifyOTP,
 };
-
-

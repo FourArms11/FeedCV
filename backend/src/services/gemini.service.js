@@ -14,6 +14,10 @@ const reportJsonSchema = {
       maximum: 100,
     },
 
+    title: {
+      type: "string",
+minLength: 1,
+    },
     technicalQuestions: {
       type: "array",
       items: {
@@ -106,6 +110,7 @@ const reportJsonSchema = {
 
   required: [
     "score",
+    "title",
     "technicalQuestions",
     "behavioralQuestions",
     "skillsGaps",
