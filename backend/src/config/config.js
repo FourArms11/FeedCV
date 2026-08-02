@@ -4,8 +4,11 @@ dotenv.config();
 if(!process.env.MONGO_URI) {
   throw new Error('MONGO_URI environment variable not set');
 }
-if(!process.env.JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable not set');
+if(!process.env.JWT_ACCESS_SECRET) {
+  throw new Error('JWT_ACCESS_SECRET environment variable not set');
+}
+if(!process.env.JWT_REFRESH_SECRET) {
+  throw new Error('JWT_REFRESH_SECRET environment variable not set');
 }
 if(!process.env.GEMINI_API_KEY) {
   throw new Error('GEMINI_API_KEY environment variable not set');
@@ -26,7 +29,8 @@ if(!process.env.EMAIL_USER) {
 
 const config = {
   MONGO_URI: process.env.MONGO_URI,
-  JWT_SECRET: process.env.JWT_SECRET,
+  JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET,
+  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
   GEMINI_API_KEY: process.env.GEMINI_API_KEY,
   CLIENT_ID: process.env.CLIENT_ID,
   CLIENT_SECRET: process.env.CLIENT_SECRET,

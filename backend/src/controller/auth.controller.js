@@ -1,9 +1,12 @@
 const userModel = require("../models/user.model");
+const redis = require("../config/redis.client");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const blackListToken = require("../models/blacklist.model");
+const config = require("../config/config");
 const { generateOTP, sendOTP } = require("../utils/otp.utils");
 const client = require("../config/redis.client");
+const { v4: uuidv4 } = require("uuid");
+const crypto = require("crypto");
 
 async function registerUser(req, res) {
   const { username, email, password } = req.body;
@@ -48,7 +51,7 @@ async function registerUser(req, res) {
     `user:${email}`,
     JSON.stringify({ username, email, password: hash }),
     "EX",
-    60 * 60 * 24 * 2,
+    60 * 60 * 24 * 2, // 2 days
   );
 
   await client.set(`otp:${email}`, otp, "EX", 300); // Set OTP in Redis with a 5-minute expiration
@@ -64,13 +67,14 @@ async function registerUser(req, res) {
 }
 
 async function loginUser(req, res) {
-  const { email, password } = req.body;
-
-  const user = await userModel.findOne({ email });
+  const { email, username, password } = req.body;
+  const user = await userModel.findOne({
+    $or: [{ username }, { email }],
+  });
 
   if (!user) {
     return res.status(400).json({
-      message: "email or password is incorrect",
+      message: "Invalid credentials",
     });
   }
 
@@ -78,21 +82,60 @@ async function loginUser(req, res) {
 
   if (!isPasswordValid) {
     return res.status(400).json({
-      message: "Email or password is incorrect",
+      message: "Invalid credentials",
     });
   }
 
-  const token = jwt.sign(
+  const sessionID = uuidv4();
+
+  const RefreshToken = jwt.sign(
+    { id: user._id, sessionID },
+    config.JWT_REFRESH_SECRET,
     {
-      id: user._id,
-    },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: "1d",
+      expiresIn: "30d",
     },
   );
 
-  res.cookie("token", token, getTokenCookieOptions());
+  const refreshTokenHash = crypto
+    .createHash("sha256")
+    .update(RefreshToken)
+    .digest("hex");
+
+  const AccessToken = jwt.sign(
+    { id: user._id, sessionID },
+    config.JWT_ACCESS_SECRET,
+    {
+      expiresIn: "15m",
+    },
+  );
+
+  await redis.set(
+    `session:${user._id}:${sessionID}`,
+    JSON.stringify({
+      session: sessionID,
+      userId: user._id,
+      refreshTokenHash: refreshTokenHash,
+      ipAddress: req.ip,
+      userAgent: req.headers["user-agent"],
+      lastUsedAt: new Date().toISOString(),
+    }),
+    "EX",
+    60 * 60 * 24 * 30, // 30 days
+  );
+
+  res.cookie("token", AccessToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+    maxAge: 15 * 60 * 1000, // 15 min, matches JWT exp
+  });
+
+  res.cookie("refreshToken", RefreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days, matches JWT exp
+  });
 
   res.status(200).json({
     message: "User logged In successfully",
@@ -103,6 +146,9 @@ async function loginUser(req, res) {
     },
   });
 }
+// } catch (error) {
+//   return res.status(500).json({ message: "Something went wrong" });
+// }
 
 async function logoutUser(req, res) {
   const token = req.cookies.token;
@@ -158,7 +204,7 @@ async function verifyOTP(req, res) {
 
   if (!user) {
     return res.status(400).json({
-      message: "User not found",
+      message: "Please register again",
     });
   }
 
@@ -179,10 +225,111 @@ async function verifyOTP(req, res) {
   });
 }
 
+async function refreshToken(req, res) {
+  const refreshToken = req.cookies.refreshToken;
+
+  if (!refreshToken) {
+    return res.status(400).json({
+      message: "Refresh token not found",
+    });
+  }
+
+  let decoded;
+  try {
+    decoded = jwt.verify(refreshToken, config.JWT_REFRESH_SECRET); //decoded will have id and sessionID
+  } catch (error) {
+    return res.status(401).json({
+      message: "Invalid refresh token",
+    });
+  }
+  if (!decoded || !decoded.id || !decoded.sessionID) {
+    return res.status(401).json({
+      message: "Invalid refresh token",
+    });
+  }
+
+  const session = await redis.get(
+    `session:${decoded.id}:${decoded.sessionID}`,
+  );
+
+  if (!session) {
+    return res.status(401).json({
+      message: "Session expired",
+    });
+  }
+  const sessionData = JSON.parse(session);
+
+  const refreshTokenHash = crypto
+    .createHash("sha256")
+    .update(refreshToken)
+    .digest("hex");
+
+
+  if (sessionData.refreshTokenHash !== refreshTokenHash) {
+    return res.status(401).json({
+      message: "Invalid refresh token",
+    });
+  }
+
+  const newRefreshToken = jwt.sign(
+    { id: decoded.id, sessionID: decoded.sessionID },
+    config.JWT_REFRESH_SECRET,
+    {
+      expiresIn: "30d",
+    },
+  );
+
+  const newRefreshTokenHash = crypto
+    .createHash("sha256")
+    .update(newRefreshToken)    
+    .digest("hex");
+
+  const accessToken = jwt.sign(
+    { id: decoded.id, sessionID: decoded.sessionID },
+    config.JWT_ACCESS_SECRET,
+    {
+      expiresIn: "15m",
+    },
+  );
+
+  await redis.set(
+    `session:${decoded.id}:${decoded.sessionID}`,
+    JSON.stringify({
+      session: decoded.sessionID,
+      userId: decoded.id,
+      refreshTokenHash: newRefreshTokenHash,
+      ipAddress: req.ip,
+      userAgent: req.headers["user-agent"],
+      lastUsedAt: new Date().toISOString(),
+    }),
+    "EX",
+    60 * 60 * 24 * 30, // 30 days
+  );
+
+  res.cookie("token", accessToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+    maxAge: 15 * 60 * 1000, // 15 min, matches JWT exp
+  });
+
+  res.cookie("refreshToken", newRefreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days, matches JWT exp
+  });
+
+  return res.status(200).json({
+    message: "Refresh token refreshed successfully",
+  });
+}
+
 module.exports = {
   registerUser,
   loginUser,
   logoutUser,
   getDetails,
   verifyOTP,
+  refreshToken,
 };

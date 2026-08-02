@@ -15,6 +15,8 @@ authRouter.get('/getDetails',authMiddleware.verifyUser, authController.getDetail
 
 authRouter.post('/verify-otp', authController.verifyOTP);
 
+authRouter.post('/refresh-token', authController.refreshToken);
+
 
 
 module.exports = authRouter;
