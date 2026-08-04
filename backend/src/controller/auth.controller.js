@@ -146,27 +146,79 @@ async function loginUser(req, res) {
     },
   });
 }
-// } catch (error) {
-//   return res.status(500).json({ message: "Something went wrong" });
-// }
 
 async function logoutUser(req, res) {
-  const token = req.cookies.token;
+  const refreshToken = req.cookies.refreshToken;
 
-  if (token) {
-    await blackListToken.create({
-      token,
+  if(!refreshToken) {
+    return res.status(400).json({
+      message: "Refresh token not found",
     });
-    res.clearCookie("token", getClearTokenCookieOptions());
+  }
+  
+  try {
+    const decoded = jwt.verify(refreshToken, config.JWT_REFRESH_SECRET);
+    const sessionID = decoded.sessionID;
+    const userID = decoded.id;
+    await client.del(`session:${userID}:${sessionID}`); 
+  }
+  catch(err){
+    return res.status(400).json({
+      message: "Invalid refresh token",
+    });
+  }  
+    
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true, 
+      sameSite: "strict",
+    });
 
-    return res.status(200).json({
-      message: "User logged out successfully",
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: true, 
+      sameSite: "strict",
+    });
+  return res.status(200).json({
+    message: "User logged out successfully",
+  });
+}
+
+async function logoutAllSessions(req, res) {
+  const refreshToken = req.cookies.refreshToken;
+  if(!refreshToken) {
+    return res.status(400).json({
+      message: "Refresh token not found",
     });
   }
 
-  res.clearCookie("token", getClearTokenCookieOptions());
+  try{
+    const decoded = jwt.verify(refreshToken, config.JWT_REFRESH_SECRET);
+    const userID = decoded.id;
+    const keys = await client.keys(`session:${userID}:*`);
+    await client.del(keys);
+  }catch(err){
+    return res.status(400).json({
+      message: "Invalid refresh token",
+    });
+  }
+
+
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: true, 
+    sameSite: "strict",
+  });
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true, 
+    sameSite: "strict",
+  });
+
+
+
   return res.status(200).json({
-    message: "User logged out successfully",
+    message: "All sessions logged out successfully",
   });
 }
 
