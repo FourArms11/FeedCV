@@ -125,14 +125,14 @@ async function loginUser(req, res) {
 
   res.cookie("token", AccessToken, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     maxAge: 15 * 60 * 1000, // 15 min, matches JWT exp
   });
 
   res.cookie("refreshToken", RefreshToken, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days, matches JWT exp
   });
