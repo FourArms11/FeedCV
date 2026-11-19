@@ -126,6 +126,28 @@ The server runs on:
 http://localhost:3000
 ```
 
+The React frontend is served by Vite during development at
+`http://localhost:5173`, with API requests proxied to port 3000. Run:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+For a production build:
+
+```bash
+cd frontend
+npm run build
+```
+
+The Express server serves the built frontend from `frontend/dist`, so opening
+`http://localhost:3000` loads the FeedCV dashboard. It supports account
+registration with OTP verification, login, resume upload, and rendering the
+generated interview report. For local development, cookies are configured for
+HTTP; set `NODE_ENV=production` when deploying behind HTTPS.
+
 ## API Endpoints
 
 ### Auth Routes

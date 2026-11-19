@@ -125,14 +125,14 @@ async function loginUser(req, res) {
 
   res.cookie("token", AccessToken, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     maxAge: 15 * 60 * 1000, // 15 min, matches JWT exp
   });
 
   res.cookie("refreshToken", RefreshToken, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days, matches JWT exp
   });
@@ -170,13 +170,13 @@ async function logoutUser(req, res) {
     
     res.clearCookie("refreshToken", {
       httpOnly: true,
-      secure: true, 
+      secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
     });
 
     res.clearCookie("token", {
       httpOnly: true,
-      secure: true, 
+      secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
     });
   return res.status(200).json({
@@ -206,12 +206,12 @@ async function logoutAllSessions(req, res) {
 
   res.clearCookie("refreshToken", {
     httpOnly: true,
-    secure: true, 
+    secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
   });
   res.clearCookie("token", {
     httpOnly: true,
-    secure: true, 
+    secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
   });
 
@@ -360,14 +360,14 @@ async function refreshToken(req, res) {
 
   res.cookie("token", accessToken, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     maxAge: 15 * 60 * 1000, // 15 min, matches JWT exp
   });
 
   res.cookie("refreshToken", newRefreshToken, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days, matches JWT exp
   });
